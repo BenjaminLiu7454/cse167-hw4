@@ -9,11 +9,18 @@ void compute_main(uint tid : SV_DispatchThreadID,
     if (tid >= num_particles) {
         return;
     }
-    // TODO: HW 4.1. Your code below.
-    v = v + dt * (0, -9.8, 0)  // gravity changes velocity
-                x = x + dt * v // move with the NEW velocity (symplectic Euler)
-                            if (x.y < -0.97) {                // went through the floor?
-        x.y = -0.97; //   put it back on the floor
-        v.y = -v.y;  //   bounce: flip the vertical velocity
+
+    float3 p = positions[tid]; 
+    float3 v = velocities[tid];
+
+    v += dt * float3(0.0, -9.8, 0.0); // gravity (updates velocity)
+    p += dt * v;                      // move with the NEW velocity
+
+    if (p.y < -0.97) { // floor bounce (if y is under the floor 0.97)
+        p.y = -0.97;   // set position to floor
+        v.y = -v.y;    // set y-velocity move upward 
     }
+
+    positions[tid] = p; // write back
+    velocities[tid] = v;
 }
